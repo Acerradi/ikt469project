@@ -11,4 +11,4 @@ To do:
 - ~~Implement better chunking, embedding and retrieval.~~
 - Find a more suitable LLM model.
 - Implement a terminal chat with RAG chatbot.
-- Implement evaluation pipeline of RAG chatbot using LLM as judge?
+- ~~Implement evaluation pipeline of RAG chatbot using LLM as judge?~~
