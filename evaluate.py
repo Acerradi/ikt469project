@@ -20,7 +20,10 @@ vectorstore = Chroma(
 )
 
 # 3) Turn it into a retriever
-retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+retriever = vectorstore.as_retriever(
+    search_type="mmr",
+    search_kwargs={"k": 6, "fetch_k": 20}
+)
 
 # 4) Load your Ollama LLM
 llm = ChatOllama(
@@ -418,6 +421,67 @@ import csv
 import pandas as pd
 from tqdm import tqdm
 from pathlib import Path
+
+judge_llm = ChatOllama(
+    model="qwen2.5:0.5b",  # you can upgrade later (e.g. 7b)
+    temperature=0,
+    base_url="http://localhost:11434"
+)
+
+GROUNDING_PROMPT = """
+You are evaluating a RAG system.
+
+Question:
+{question}
+
+Retrieved Context:
+{context}
+
+Answer:
+{answer}
+
+Task:
+Is the answer fully supported by the context?
+
+Return ONLY valid JSON:
+{{
+  "score": float (0 to 1),
+  "verdict": "pass" or "fail",
+  "unsupported_claims": [list],
+  "reason": "short explanation"
+}}
+
+Rules:
+- 1.0 = fully grounded in context
+- 0.0 = hallucinated or unsupported
+- Use ONLY the context
+- Be strict
+"""
+
+RELEVANCE_PROMPT = """
+You are evaluating answer quality.
+
+Question:
+{question}
+
+Answer:
+{answer}
+
+Task:
+Does the answer properly answer the question?
+
+Return ONLY valid JSON:
+{{
+  "score": float (0 to 1),
+  "verdict": "pass" or "fail",
+  "missing_points": [list],
+  "reason": "short explanation"
+}}
+
+Rules:
+- Penalize vague or incomplete answers
+- Penalize irrelevant info
+"""
 
 def safe_parse_json(text: str):
     try:
