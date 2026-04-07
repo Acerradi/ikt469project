@@ -31,125 +31,6 @@ llm = ChatOllama(
 print("Loaded RAG system")
 
 # LLM-as-Judge evaluation pipeline for your UiA course RAG system
-
-import json
-import pandas as pd
-from tqdm import tqdm
-
-from langchain_ollama import ChatOllama
-
-# ----------------------------
-# 1. Judge model
-# ----------------------------
-judge_llm = ChatOllama(
-    model="qwen2.5:0.5b",  # upgrade later if needed
-    temperature=0,
-    base_url="http://localhost:11434"
-)
-
-# ----------------------------
-# 2. Judge prompts
-# ----------------------------
-GROUNDING_PROMPT = """
-You are evaluating a RAG system.
-
-Question:
-{question}
-
-Retrieved Context:
-{context}
-
-Answer:
-{answer}
-
-Task:
-Is the answer fully supported by the context?
-
-Return ONLY valid JSON:
-{{
-  "score": float,
-  "verdict": "pass" or "fail",
-  "unsupported_claims": [list],
-  "reason": "short explanation"
-}}
-
-Rules:
-- 1.0 = fully grounded in context
-- 0.0 = hallucinated or unsupported
-- Use ONLY the context
-- Be strict
-"""
-
-RELEVANCE_PROMPT = """
-You are evaluating answer quality.
-
-Question:
-{question}
-
-Answer:
-{answer}
-
-Task:
-Does the answer properly answer the question?
-
-Return ONLY valid JSON:
-{{
-  "score": float,
-  "verdict": "pass" or "fail",
-  "missing_points": [list],
-  "reason": "short explanation"
-}}
-
-Rules:
-- Penalize vague or incomplete answers
-- Penalize irrelevant info
-"""
-
-# ----------------------------
-# 3. Helper: robust JSON parser
-# ----------------------------
-def safe_parse_json(text: str):
-    """
-    Try to parse JSON from model output.
-    Falls back to extracting substring between first { and last }.
-    """
-    try:
-        return json.loads(text)
-    except Exception:
-        pass
-
-    try:
-        start = text.find("{")
-        end = text.rfind("}") + 1
-        if start != -1 and end != -1:
-            return json.loads(text[start:end])
-    except Exception:
-        pass
-
-    return None
-
-# ----------------------------
-# 4. Judge runner
-# ----------------------------
-def run_judge(prompt_template, question, context, answer):
-    prompt = prompt_template.format(
-        question=question,
-        context=context,
-        answer=answer
-    )
-
-    response = judge_llm.invoke(prompt)
-    parsed = safe_parse_json(response.content)
-
-    if parsed is not None:
-        return parsed
-
-    return {
-        "score": 0.0,
-        "verdict": "fail",
-        "reason": "Invalid JSON from judge",
-    }
-
 # ----------------------------
 # 5. Full evaluation question set
 # ----------------------------
@@ -532,6 +413,64 @@ question_set = [
 # ----------------------------
 # 6. RAG evaluation loop
 # ----------------------------
+import json
+import csv
+import pandas as pd
+from tqdm import tqdm
+from pathlib import Path
+
+def safe_parse_json(text: str):
+    try:
+        return json.loads(text)
+    except Exception:
+        pass
+
+    try:
+        start = text.find("{")
+        end = text.rfind("}") + 1
+        if start != -1 and end != -1:
+            return json.loads(text[start:end])
+    except Exception:
+        pass
+
+    return None
+
+def normalize_score(value):
+    try:
+        value = float(value)
+    except Exception:
+        return 0.0
+    if value < 0:
+        return 0.0
+    if value > 1:
+        return 1.0
+    return value
+
+def clean_text_for_csv(text):
+    if text is None:
+        return ""
+    return str(text).replace("\r", " ").replace("\n", " \\n ").strip()
+
+def run_judge(prompt_template, question, context, answer):
+    prompt = prompt_template.format(
+        question=question,
+        context=context,
+        answer=answer
+    )
+
+    response = judge_llm.invoke(prompt)
+    parsed = safe_parse_json(response.content)
+
+    if parsed is not None:
+        parsed["score"] = normalize_score(parsed.get("score", 0.0))
+        return parsed
+
+    return {
+        "score": 0.0,
+        "verdict": "fail",
+        "reason": "Invalid JSON from judge",
+    }
+
 results = []
 
 for item in tqdm(question_set, desc="Evaluating RAG"):
@@ -544,26 +483,28 @@ for item in tqdm(question_set, desc="Evaluating RAG"):
     evidence_fields = item.get("evidence_fields", [])
     is_unanswerable = item.get("is_unanswerable", False)
 
-    # Retrieve relevant chunks
     docs = retriever.invoke(q)
-    context = "\n\n".join(doc.page_content for doc in docs)
 
-    # Ask your RAG model to answer using only retrieved context
+    raw_context = "\n\n".join(doc.page_content for doc in docs)
+    context_for_prompt = raw_context
+    context_for_csv = clean_text_for_csv(raw_context)
+
     rag_prompt = f"""
 Answer the question using only the retrieved context.
-If the answer is not in the context, say that the information is not provided.
+If the answer is not in the context, say exactly: "The information is not provided in the retrieved context."
 
 Context:
-{context}
+{context_for_prompt}
 
 Question:
 {q}
 """
-    answer = llm.invoke(rag_prompt).content
 
-    # Judge grounding and relevance
-    grounding = run_judge(GROUNDING_PROMPT, q, context, answer)
-    relevance = run_judge(RELEVANCE_PROMPT, q, context, answer)
+    raw_answer = llm.invoke(rag_prompt).content.strip()
+    answer_for_csv = clean_text_for_csv(raw_answer)
+
+    grounding = run_judge(GROUNDING_PROMPT, q, context_for_prompt, raw_answer)
+    relevance = run_judge(RELEVANCE_PROMPT, q, context_for_prompt, raw_answer)
 
     results.append({
         "id": qid,
@@ -575,30 +516,24 @@ Question:
         "evidence_fields": ", ".join(evidence_fields),
         "is_unanswerable": is_unanswerable,
         "retrieved_docs": len(docs),
-        "context": context,
-        "answer": answer,
-        "grounding_score": grounding.get("score"),
+        "context": context_for_csv,
+        "answer": answer_for_csv,
+        "grounding_score": normalize_score(grounding.get("score")),
         "grounding_verdict": grounding.get("verdict"),
-        "grounding_reason": grounding.get("reason"),
+        "grounding_reason": clean_text_for_csv(grounding.get("reason", "")),
         "unsupported_claims": json.dumps(grounding.get("unsupported_claims", []), ensure_ascii=False),
-        "relevance_score": relevance.get("score"),
+        "relevance_score": normalize_score(relevance.get("score")),
         "relevance_verdict": relevance.get("verdict"),
-        "relevance_reason": relevance.get("reason"),
+        "relevance_reason": clean_text_for_csv(relevance.get("reason", "")),
         "missing_points": json.dumps(relevance.get("missing_points", []), ensure_ascii=False),
     })
 
-# ----------------------------
-# 7. Save results
-# ----------------------------
 df = pd.DataFrame(results)
-df.to_csv("rag_evaluation.csv", index=False)
 
-print("\nSaved results to rag_evaluation.csv")
-print(df[[
-    "id",
-    "question",
-    "grounding_score",
-    "relevance_score",
-    "grounding_verdict",
-    "relevance_verdict"
-]].head())
+output_path = Path("rag_evaluation.csv")
+if output_path.exists():
+    output_path.unlink()
+
+df.to_csv(output_path, index=False, quoting=csv.QUOTE_ALL)
+
+print(f"\nSaved {len(df)} rows to {output_path}")
