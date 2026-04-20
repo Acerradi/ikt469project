@@ -20,14 +20,11 @@ vectorstore = Chroma(
 )
 
 # 3) Turn it into a retriever
-retriever = vectorstore.as_retriever(
-    search_type="mmr",
-    search_kwargs={"k": 6, "fetch_k": 20}
-)
+retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
 
 # 4) Load your Ollama LLM
 llm = ChatOllama(
-    model="qwen2.5:0.5b",   # or another model you actually pulled
+    model="llama3.2:3b",
     temperature=0,
     base_url="http://localhost:11434"
 )
@@ -423,7 +420,7 @@ from tqdm import tqdm
 from pathlib import Path
 
 judge_llm = ChatOllama(
-    model="qwen2.5:0.5b",  # you can upgrade later (e.g. 7b)
+    model="llama3.2:3b",
     temperature=0,
     base_url="http://localhost:11434"
 )
