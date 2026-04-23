@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Optional
 
 import psutil
+import re
 
 import pandas as pd
 import requests
@@ -100,6 +101,26 @@ K_VALUES = [3, 5, 10]
 # Filtered at runtime to models that are actually pulled in Ollama
 CANDIDATE_GENERATOR_MODELS = ["llama3.2:3b", "qwen2.5:0.5b"]
 CANDIDATE_JUDGE_MODELS = ["llama3.2:3b"]
+
+COURSE_CODE_RE = re.compile(r"\bIKT\d{3}\b")
+
+RAG_PROMPT = """\
+You are a course information assistant for UiA (University of Agder).
+Answer using ONLY the information provided in the context below. Do not use prior knowledge about any courses.
+
+Rules:
+- If the information is not in the context, say exactly: "The information is not provided in the retrieved context."
+- Factual questions (ECTS credits, instructor, language, semester): give a brief, direct answer.
+- Comparison questions: address each course mentioned in the question separately and systematically.
+- List or synthesis questions: enumerate every matching item found in the context; do not assume there are more beyond what the context shows.
+- Never infer or guess anything not explicitly stated.
+
+Context:
+{context}
+
+Question: {question}
+
+Answer:"""
 
 # ─── Judge prompts (identical to evaluate.py) ─────────────────────────────────
 
@@ -652,6 +673,65 @@ def build_documents(df: pd.DataFrame, splitter: RecursiveCharacterTextSplitter) 
     return docs
 
 
+def build_catalog_documents(df: pd.DataFrame, splitter: RecursiveCharacterTextSplitter) -> list:
+    """One compact line per course → split into chunks.
+
+    Synthesis queries ("which courses mention X?", "which are 30 ECTS?") need to
+    scan across all courses. A full-corpus catalog document makes that possible
+    without increasing k to cover every individual section chunk.
+    """
+    lines = ["UiA IKT Spring 2026 — Full Course Catalog\n"]
+    for _, row in df.iterrows():
+        url = str(row.get("url", ""))
+        m = re.search(r"ikt(\d{3})", url, re.IGNORECASE)
+        code = f"IKT{m.group(1).upper()}" if m else ""
+
+        title = str(row.get("title", "")).strip()
+        ects = str(row.get("ects_credits", "")).strip()
+        lang = str(row.get("teaching_language", "")).strip()
+        free = str(row.get("offered_as_a_free_standing_course", "")).strip()
+        leader = str(row.get("course_leader", "")).strip()
+        exam_req = str(row.get("examination_requirements", "")) if pd.notna(row.get("examination_requirements")) else ""
+        exam_snippet = exam_req[:80].replace("\n", " ").strip()
+
+        topics_raw = " ".join(filter(None, [
+            str(row.get("learning_outcomes", "")) if pd.notna(row.get("learning_outcomes")) else "",
+            str(row.get("contents", "")) if pd.notna(row.get("contents")) else "",
+        ]))
+        topics_snippet = topics_raw[:120].replace("\n", " ").strip()
+
+        lines.append(
+            f"{code} {title}: {ects} ECTS | {lang} | free-standing: {free} | "
+            f"leader: {leader} | exam requirements: {exam_snippet} | topics: {topics_snippet}"
+        )
+
+    chunks = splitter.split_text("\n".join(lines))
+    return [
+        Document(page_content=chunk, metadata={"section": "catalog_overview", "chunk_id": i, "row_id": "catalog"})
+        for i, chunk in enumerate(chunks)
+    ]
+
+
+def augmented_retrieve(vectorstore: Chroma, retriever, question: str) -> list:
+    """Semantic retrieval + course-code injection.
+
+    For questions that name specific IKT courses (e.g. "Compare IKT452 and IKT460"),
+    semantic top-k alone may miss one of the courses entirely. This function adds up
+    to 3 extra chunks per named course code to guarantee coverage.
+    """
+    docs = retriever.invoke(question)
+    seen = {d.page_content[:80] for d in docs}
+
+    for code in set(COURSE_CODE_RE.findall(question.upper())):
+        for doc in vectorstore.similarity_search(code, k=3):
+            key = doc.page_content[:80]
+            if key not in seen:
+                docs.append(doc)
+                seen.add(key)
+
+    return docs
+
+
 def build_vectorstore(
     label: str,
     embedding_model: str,
@@ -677,7 +757,9 @@ def build_vectorstore(
     os.makedirs(persist_dir, exist_ok=True)
 
     docs = build_documents(df, splitter)
-    print(f"  → {len(docs)} documents from {len(df)} courses")
+    catalog_docs = build_catalog_documents(df, splitter)
+    docs = docs + catalog_docs
+    print(f"  → {len(docs)} documents from {len(df)} courses ({len(catalog_docs)} catalog chunks)")
 
     vs = Chroma(
         persist_directory=persist_dir,
@@ -830,15 +912,9 @@ def main() -> None:
                             unit="q",
                         ):
                             q = item["question"]
-                            docs = retriever.invoke(q)
+                            docs = augmented_retrieve(vectorstore, retriever, q)
                             raw_context = "\n\n".join(doc.page_content for doc in docs)
-
-                            rag_prompt = (
-                                "Answer the question using only the retrieved context.\n"
-                                'If the answer is not in the context, say exactly: "The information is not provided in the retrieved context."\n\n'
-                                f"Context:\n{raw_context}\n\n"
-                                f"Question:\n{q}\n"
-                            )
+                            rag_prompt = RAG_PROMPT.format(context=raw_context, question=q)
 
                             q_start_energy_uj = _read_rapl_uj()
                             q_start_cpu_s = _process_cpu_time_s()

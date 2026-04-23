@@ -2,8 +2,23 @@ from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama import ChatOllama
 import json
+import re
 import pandas as pd
 from tqdm import tqdm
+
+COURSE_CODE_RE = re.compile(r"\bIKT\d{3}\b")
+
+
+def augmented_retrieve(vectorstore, retriever, question: str) -> list:
+    docs = retriever.invoke(question)
+    seen = {d.page_content[:80] for d in docs}
+    for code in set(COURSE_CODE_RE.findall(question.upper())):
+        for doc in vectorstore.similarity_search(code, k=3):
+            key = doc.page_content[:80]
+            if key not in seen:
+                docs.append(doc)
+                seen.add(key)
+    return docs
 
 # 1) Load the same embedding model you used when indexing
 embeddings = HuggingFaceEmbeddings(
@@ -544,22 +559,30 @@ for item in tqdm(question_set, desc="Evaluating RAG"):
     evidence_fields = item.get("evidence_fields", [])
     is_unanswerable = item.get("is_unanswerable", False)
 
-    docs = retriever.invoke(q)
+    docs = augmented_retrieve(vectorstore, retriever, q)
 
     raw_context = "\n\n".join(doc.page_content for doc in docs)
     context_for_prompt = raw_context
     context_for_csv = clean_text_for_csv(raw_context)
 
-    rag_prompt = f"""
-Answer the question using only the retrieved context.
-If the answer is not in the context, say exactly: "The information is not provided in the retrieved context."
+    rag_prompt = f"""\
+You are a course information assistant for UiA (University of Agder).
+Answer using ONLY the information provided in the context below. Do not use prior knowledge about any courses.
+
+Rules:
+- If the information is not in the context, say exactly: "The information is not provided in the retrieved context."
+- Factual questions (ECTS credits, instructor, language, semester): give a brief, direct answer.
+- Comparison questions: address each course mentioned in the question separately and systematically.
+- List or synthesis questions: enumerate every matching item found in the context; do not assume there are more beyond what the context shows.
+- Never infer or guess anything not explicitly stated.
 
 Context:
 {context_for_prompt}
 
 Question:
 {q}
-"""
+
+Answer:"""
 
     raw_answer = llm.invoke(rag_prompt).content.strip()
     answer_for_csv = clean_text_for_csv(raw_answer)
