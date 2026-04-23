@@ -24,8 +24,24 @@ The script automatically skips any Ollama model that is not pulled.
 
 **Output files** (appended after each experiment, so partial results are preserved on interruption):
 
-- `experiment_results.csv` — one row per question per experiment, with the retrieved context, generated answer, grounding score/verdict, and relevance score/verdict
-- `experiment_results_summary.csv` — one row per experiment, with pass/fail counts and mean scores as the key metrics
+- `experiment_results.csv` — one row per question per experiment, including:
+  - Retrieved context, generated answer, grounding and relevance scores/verdicts
+  - `generation_latency_s`, `judge_latency_s`, `total_latency_s` — time breakdown per question
+  - `cpu_time_s` — process CPU seconds consumed for that question (always available)
+  - `energy_j` — CPU package energy in joules via Intel RAPL (requires root; `null` otherwise)
+
+- `experiment_results_summary.csv` — one row per experiment, with the key metrics:
+  - `grounding_passes` / `grounding_fails`, `relevance_passes` / `relevance_fails`
+  - `experiment_duration_s` — total wall-clock time for the experiment
+  - `mean_latency_per_question_s` — average total latency per question
+  - `total_cpu_time_s`, `mean_cpu_time_per_question_s`
+  - `total_energy_j`, `mean_energy_per_question_j` (RAPL; `null` if unavailable)
+
+**Enabling RAPL energy measurement** (one-time, requires sudo):
+```bash
+sudo chmod o+r /sys/class/powercap/intel-rapl/intel-rapl:0/energy_uj
+sudo chmod o+r /sys/class/powercap/intel-rapl/intel-rapl:0/max_energy_range_uj
+```
 
 ```
 python experiment_runner.py                        # full run

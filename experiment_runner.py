@@ -29,6 +29,8 @@ import datetime
 from pathlib import Path
 from typing import Optional
 
+import psutil
+
 import pandas as pd
 import requests
 from tqdm import tqdm
@@ -582,6 +584,34 @@ def clean_text(text) -> str:
     return str(text).replace("\r", " ").replace("\n", " \\n ").strip()
 
 
+RAPL_ENERGY_PATH = "/sys/class/powercap/intel-rapl/intel-rapl:0/energy_uj"
+RAPL_MAX_PATH = "/sys/class/powercap/intel-rapl/intel-rapl:0/max_energy_range_uj"
+
+
+def _read_rapl_uj() -> Optional[float]:
+    try:
+        return float(Path(RAPL_ENERGY_PATH).read_text().strip())
+    except Exception:
+        return None
+
+
+def _energy_delta_j(start_uj: Optional[float], end_uj: Optional[float]) -> Optional[float]:
+    if start_uj is None or end_uj is None:
+        return None
+    delta = end_uj - start_uj
+    if delta < 0:  # counter wrapped around its max value
+        try:
+            delta += float(Path(RAPL_MAX_PATH).read_text().strip())
+        except Exception:
+            return None
+    return round(delta / 1_000_000, 4)  # µJ → J
+
+
+def _process_cpu_time_s() -> float:
+    t = psutil.Process().cpu_times()
+    return t.user + t.system
+
+
 def run_judge(judge_llm: ChatOllama, prompt_template: str, question: str, context: str, answer: str) -> dict:
     prompt = prompt_template.format(question=question, context=context, answer=answer)
     response = judge_llm.invoke(prompt)
@@ -788,6 +818,9 @@ def main() -> None:
 
                         desc = f"{exp_id} [{label}|k={k}|{gen_model}]"
                         rows = []
+                        exp_start_wall = time.time()
+                        exp_start_energy_uj = _read_rapl_uj()
+                        exp_start_cpu_s = _process_cpu_time_s()
 
                         for item in tqdm(
                             QUESTION_SET,
@@ -807,6 +840,9 @@ def main() -> None:
                                 f"Question:\n{q}\n"
                             )
 
+                            q_start_energy_uj = _read_rapl_uj()
+                            q_start_cpu_s = _process_cpu_time_s()
+
                             t0 = time.time()
                             raw_answer = llm.invoke(rag_prompt).content.strip()
                             gen_latency = round(time.time() - t0, 2)
@@ -815,6 +851,10 @@ def main() -> None:
                             grounding = run_judge(judge_llm, GROUNDING_PROMPT, q, raw_context, raw_answer)
                             relevance = run_judge(judge_llm, RELEVANCE_PROMPT, q, raw_context, raw_answer)
                             judge_latency = round(time.time() - t1, 2)
+
+                            q_total_latency = round(gen_latency + judge_latency, 2)
+                            q_cpu_time_s = round(_process_cpu_time_s() - q_start_cpu_s, 3)
+                            q_energy_j = _energy_delta_j(q_start_energy_uj, _read_rapl_uj())
 
                             rows.append({
                                 **exp_meta,
@@ -835,6 +875,9 @@ def main() -> None:
                                 "answer": clean_text(raw_answer),
                                 "generation_latency_s": gen_latency,
                                 "judge_latency_s": judge_latency,
+                                "total_latency_s": q_total_latency,
+                                "cpu_time_s": q_cpu_time_s,
+                                "energy_j": q_energy_j,
                                 "grounding_score": normalize_score(grounding.get("score")),
                                 "grounding_verdict": grounding.get("verdict", ""),
                                 "grounding_reason": clean_text(grounding.get("reason", "")),
@@ -851,19 +894,30 @@ def main() -> None:
 
                         append_to_csv(rows, args.output)
 
+                        exp_duration_s = round(time.time() - exp_start_wall, 2)
+                        exp_energy_j = _energy_delta_j(exp_start_energy_uj, _read_rapl_uj())
+                        exp_cpu_time_s = round(_process_cpu_time_s() - exp_start_cpu_s, 3)
+
                         grounding_passes = sum(1 for r in rows if r["grounding_verdict"] == "pass")
                         grounding_fails = sum(1 for r in rows if r["grounding_verdict"] == "fail")
                         relevance_passes = sum(1 for r in rows if r["relevance_verdict"] == "pass")
                         relevance_fails = sum(1 for r in rows if r["relevance_verdict"] == "fail")
+                        n = len(rows)
                         append_to_csv([{
                             **exp_meta,
-                            "total_questions": len(rows),
+                            "total_questions": n,
+                            "experiment_duration_s": exp_duration_s,
+                            "total_cpu_time_s": exp_cpu_time_s,
+                            "total_energy_j": exp_energy_j,
+                            "mean_latency_per_question_s": round(sum(r["total_latency_s"] for r in rows) / n, 2),
+                            "mean_cpu_time_per_question_s": round(exp_cpu_time_s / n, 3),
+                            "mean_energy_per_question_j": round(exp_energy_j / n, 4) if exp_energy_j is not None else None,
                             "grounding_passes": grounding_passes,
                             "grounding_fails": grounding_fails,
                             "relevance_passes": relevance_passes,
                             "relevance_fails": relevance_fails,
-                            "mean_grounding_score": round(sum(r["grounding_score"] for r in rows) / len(rows), 3),
-                            "mean_relevance_score": round(sum(r["relevance_score"] for r in rows) / len(rows), 3),
+                            "mean_grounding_score": round(sum(r["grounding_score"] for r in rows) / n, 3),
+                            "mean_relevance_score": round(sum(r["relevance_score"] for r in rows) / n, 3),
                         }], summary_path)
 
                         exp_counter += 1
