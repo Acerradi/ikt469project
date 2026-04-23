@@ -800,6 +800,64 @@ def append_to_csv(rows: list, output_path: str) -> None:
     )
 
 
+def load_completed_experiments(summary_path: str) -> set:
+    """Return config tuples for every experiment that has a completed summary row."""
+    if not Path(summary_path).exists():
+        return set()
+    try:
+        df = pd.read_csv(summary_path)
+    except Exception:
+        return set()
+    completed = set()
+    for _, row in df.iterrows():
+        completed.add((
+            str(row["embedding_model"]),
+            int(row["chunk_size"]),
+            int(row["chunk_overlap"]),
+            int(row["k"]),
+            str(row["generator_model"]),
+            str(row["judge_model"]),
+        ))
+    return completed
+
+
+def remove_partial_rows(output_path: str, completed: set) -> None:
+    """Strip question rows whose experiment never wrote a summary row.
+
+    These are left over from a run that was interrupted mid-experiment.
+    Without this cleanup, resuming would append duplicate rows for the
+    questions that completed before the interruption.
+    """
+    if not Path(output_path).exists():
+        return
+    try:
+        df = pd.read_csv(output_path)
+    except Exception:
+        return
+    if df.empty:
+        return
+
+    required = {"embedding_model", "chunk_size", "chunk_overlap", "k", "generator_model", "judge_model"}
+    if not required.issubset(df.columns):
+        return
+
+    def _belongs_to_completed(row):
+        return (
+            str(row["embedding_model"]),
+            int(row["chunk_size"]),
+            int(row["chunk_overlap"]),
+            int(row["k"]),
+            str(row["generator_model"]),
+            str(row["judge_model"]),
+        ) in completed
+
+    mask = df.apply(_belongs_to_completed, axis=1)
+    n_partial = int((~mask).sum())
+    if n_partial:
+        print(f"  Removing {n_partial} partial rows from {output_path}")
+        df[mask].to_csv(output_path, index=False, quoting=csv.QUOTE_ALL)
+
+
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -809,6 +867,11 @@ def main() -> None:
         "--skip-index-rebuild",
         action="store_true",
         help="Use the existing chroma_langchain_db for the baseline config; skip non-baseline configs that require CSV",
+    )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Skip experiments already present in the summary CSV; strip partial rows from any interrupted experiment",
     )
     args = parser.parse_args()
 
@@ -851,6 +914,17 @@ def main() -> None:
 
     summary_path = str(Path(args.output).with_suffix("")) + "_summary.csv"
 
+    # ── Resume logic ──────────────────────────────────────────────────────────
+    completed: set = set()
+    if args.resume:
+        completed = load_completed_experiments(summary_path)
+        if completed:
+            print(f"Resuming: {len(completed)} experiment(s) already complete, skipping them.")
+            remove_partial_rows(args.output, completed)
+        else:
+            print("--resume: no completed experiments found in summary CSV, starting fresh.")
+        print()
+
     print(f"Generator models : {generator_models}")
     print(f"Judge models     : {judge_models}")
     print(f"Embed/chunk configs: {[c[0] for c in active_configs]}")
@@ -865,6 +939,18 @@ def main() -> None:
 
     with tqdm(total=total_experiments, desc="Overall progress", unit="exp", position=0) as outer:
         for label, embedding_model, chunk_size, chunk_overlap, is_baseline in active_configs:
+
+            # Skip vectorstore build entirely when every experiment in this group is done
+            group_keys = [
+                (embedding_model, chunk_size, chunk_overlap, k, gm, jm)
+                for k in K_VALUES
+                for gm in generator_models
+                for jm in judge_models
+            ]
+            if completed and all(key in completed for key in group_keys):
+                exp_counter += len(group_keys)
+                outer.update(len(group_keys))
+                continue
 
             # Build or load the vector store for this embed/chunk config
             if args.skip_index_rebuild and is_baseline:
@@ -884,9 +970,17 @@ def main() -> None:
                     llm = ChatOllama(model=gen_model, temperature=0, base_url=OLLAMA_BASE_URL)
 
                     for judge_model in judge_models:
+                        exp_id = f"exp{exp_counter:03d}"
+                        exp_key = (embedding_model, chunk_size, chunk_overlap, k, gen_model, judge_model)
+
+                        if exp_key in completed:
+                            exp_counter += 1
+                            outer.update(1)
+                            outer.set_postfix({"skipped": exp_id})
+                            continue
+
                         judge_llm = ChatOllama(model=judge_model, temperature=0, base_url=OLLAMA_BASE_URL)
 
-                        exp_id = f"exp{exp_counter:03d}"
                         exp_meta = {
                             "exp_id": exp_id,
                             "embedding_model": embedding_model,
