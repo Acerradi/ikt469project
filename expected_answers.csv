@@ -1,0 +1,241 @@
+"question_id","question","expected_answer"
+"q001","Which course is taught by Morten Goodwin?","The provided text does not mention a course taught by Morten Goodwin. It lists details about several courses including IKT590 Master's Thesis (Spring 2026), IKT523 Master's Thesis, Cyber Security (Spring 2026), and others, along with their respective course leaders such as Turgay Celik for the IKT590 Master's Thesis and Prerequisites for other courses. However, there is no mention of Morten Goodwin in relation to any of these courses. Therefore, based on the information given, it cannot be determined which course, if any, is taught by Morten Goodwin."
+"q002","How many ECTS credits is IKT469 Deep Neural Networks worth?","The information provided does not include details about a course titled ""IKT469 Deep Neural Networks,"" including its ECTS credit value. To find the specific ECTS credits for this course, you would need to refer directly to the University of Agder's official course catalog or website where such detailed academic program information is typically listed. If you have access to these resources, they should provide the most accurate and up-to-date information regarding course credits."
+"q003","What is the teaching language of IKT112 Concepts of Machine Learning?","The information provided does not include details about a course titled ""IKT112 Concepts of Machine Learning."" Therefore, I cannot determine the teaching language for this specific course based on the data available. If you have access to additional resources or course catalogs from UiA (University of Agder), those might provide the necessary information regarding the teaching language for IKT112."
+"q004","Who is the course leader for IKT204 Data communication?","The information provided does not include details about a course titled ""IKT204 Data Communication"" or its course leader. To find this specific information, you would need to refer directly to the University of Agder's official course catalog or website where such details are typically listed. If you have access to these resources, they should provide the most accurate and up-to-date information regarding course leaders for specific courses like IKT204 Data Communication."
+"q005","In which semester is IKT443 WiFi and Internet of Things offered?","The information provided does not include details about the course IKT443 WiFi and Internet of Things. To find out in which semester it is offered, you would need to consult the specific academic catalog or course schedule for the University of Agder (UiA) for the relevant year. This information might be available on their official website or through contacting the university's registrar office directly."
+"q006","Is IKT115 Introduction to Artificial Intelligence Technology offered as a free-standing course?","The information provided does not mention whether IKT115 Introduction to Artificial Intelligence Technology is offered as a free-standing course. The details given are about other courses such as IKT523 Master's Thesis, IKT590 Master's Thesis, and others, but there is no specific mention of IKT115 in the context of being a free-standing course. To find out if IKT115 is available as a free-standing course, you would need to check directly with the University of Agder or their official course catalog for the most accurate information."
+"q007","What is the duration of IKT302 Bachelor's Thesis, data?","The information provided does not include details about a course titled ""IKT302 Bachelor's Thesis, data."" Therefore, I cannot provide the duration for this specific course. If you have access to additional resources or course catalogs from the University of Agder (UiA), those might offer more detailed information regarding the duration and structure of the bachelor's thesis in question."
+"q008","Which course is led by Andreas Prinz?","The provided information does not mention a course led by Andreas Prinz. Based on the details given, none of the courses listed have Andreas Prinz as their leader or instructor. If you are looking for specific leadership roles within these courses, it might be helpful to consult additional resources or contact the University of Agder directly for more detailed information."
+"q009","What are the examination components for IKT112 Concepts of Machine Learning?","The information provided does not include details about a course titled ""IKT112 Concepts of Machine Learning."" Therefore, I cannot provide specific examination components for this course. If you have access to additional resources or course materials related to IKT112, those might offer the necessary details regarding its examination structure. Alternatively, contacting the educational institution directly could also be helpful in obtaining accurate information about the course's assessment methods."
+"q010","Summarize the main learning outcomes of IKT469 Deep Neural Networks.","It seems there might be a misunderstanding in your question. The provided text does not mention any course titled ""IKT469 Deep Neural Networks."" Instead, it details courses such as IKT590 Master's Thesis, IKT523 Master's Thesis in Cyber Security, and others related to information and communication technology at the University of Agder.
+
+If you are looking for a summary of learning outcomes specifically for a course on deep neural networks, typically such a course might include:
+
+1. **Understanding Neural Network Architectures**: Students learn about various types of neural network architectures, including feedforward, convolutional, recurrent, and more advanced structures like transformers.
+
+2. **Mathematical Foundations**: A strong emphasis is placed on the mathematical concepts underlying neural networks, such as linear algebra, calculus, probability, and statistics.
+
+3. **Training Techniques**: Students gain knowledge about training deep neural networks using backpropagation, gradient descent, and optimization algorithms like Adam or RMSProp.
+
+4. **Regularization Methods**: The course covers techniques to prevent overfitting, including dropout, batch normalization, and data augmentation.
+
+5. **Practical Implementation**: Hands-on experience with implementing neural networks using frameworks such as TensorFlow or PyTorch.
+
+6. **Applications of Deep Learning**: Exploration of real-world applications in areas like computer vision, natural language processing, and reinforcement learning.
+
+If you have specific details about the course IKT469, please provide them, and I can help tailor a more precise summary based on that information."
+"q011","What teaching and learning methods are used in IKT460 Reinforcement Learning?","The information provided does not include details about the course ""IKT460 Reinforcement Learning."" Therefore, I am unable to specify the teaching and learning methods used for this particular course. If you have access to additional resources or course descriptions from UiA (University of Agder), those might provide more specific insights into the methodologies employed in IKT460 Reinforcement Learning. Generally, courses on reinforcement learning may involve lectures, hands-on programming assignments, lab sessions, and possibly projects that allow students to apply theoretical concepts to practical problems."
+"q012","What are the admission requirements and recommended previous knowledge for IKT204 Data communication?","The information provided does not include details about a course titled ""IKT204 Data Communication."" Therefore, I cannot provide specific admission requirements or recommended previous knowledge for this course based on the given data. If you have access to additional resources or course descriptions from UiA (University of Agder), those might offer the necessary details regarding ""IKT204 Data Communication."""
+"q013","What are the prerequisites for starting IKT302 Bachelor's Thesis, data?","The information provided does not include details about a course titled ""IKT302 Bachelor's Thesis, data."" Therefore, I cannot provide specific prerequisites for this course based on the given text. If you have access to additional resources or documentation related to the University of Agder's curriculum, those might offer more detailed insights into the requirements for starting the IKT302 Bachelor's Thesis in Data.
+
+In general, prerequisites for a bachelor's thesis often include completing a certain number of credits within the program and obtaining approval for the thesis topic from the university. It is advisable to consult the specific course catalog or academic advisor at the University of Agder for precise information regarding this course."
+"q014","What are the compulsory requirements for IKT590 Master's Thesis?","For the IKT590 Master's Thesis at the University of Agder, the following compulsory requirements must be met:
+
+1. **Credit Completion**: Students must have passed examinations with no less than 75 ECTS credits in their Master program before starting the thesis.
+
+2. **Topic Approval**: The topic for the master’s thesis needs to be approved by the University of Agder.
+
+3. **Guidance Meetings**: There are 10 compulsory guidance meetings required for each student or group working on the thesis.
+
+4. **Press Release Submission**: A press release detailing the thesis work and main results must be submitted and approved as part of the requirements.
+
+5. **Timeframe**: The master's thesis must be completed within the stipulated time frame, typically one semester (approximately 800 learning hours). Students cannot submit an improved version if they are taking a new or postponed exam.
+
+6. **Oral Presentation**: An oral presentation is required and can modify the final grade upwards or downwards by up to one character grade. The oral presentation accounts for 100% of the final grade.
+
+These requirements ensure that students engage in comprehensive, independent research while adhering to academic standards and timelines."
+"q015","Compare the assessment methods of IKT469 Deep Neural Networks and IKT468 Applied Algorithms.","The provided text does not include specific information about the courses IKT469 Deep Neural Networks or IKT468 Applied Algorithms. Therefore, a direct comparison of their assessment methods cannot be made based on the given data. However, I can offer some general insights into how such courses might typically assess students:
+
+1. **IKT469 Deep Neural Networks:**
+   - **Project-Based Assessment:** Courses focusing on deep learning often include projects where students implement neural networks to solve specific problems.
+   - **Exams or Quizzes:** These may test theoretical understanding of concepts like backpropagation, activation functions, and network architectures.
+   - **Assignments:** Regular assignments might involve coding exercises using frameworks such as TensorFlow or PyTorch.
+
+2. **IKT468 Applied Algorithms:**
+   - **Problem Sets:** Students could be assessed through problem sets that require them to apply algorithms to solve computational problems.
+   - **Programming Assignments:** These may focus on implementing and optimizing various algorithms in a programming language like Python or Java.
+   - **Exams:** Written exams might test understanding of algorithmic concepts, complexity analysis, and design principles.
+
+For precise details about the assessment methods for these specific courses at UiA, it would be best to consult the course syllabus or contact the faculty directly."
+"q016","Which has more ECTS credits: IKT112 Concepts of Machine Learning or IKT215 Pattern Recognition?","The information provided does not include details about the courses ""IKT112 Concepts of Machine Learning"" or ""IKT215 Pattern Recognition,"" including their respective ECTS credits. Therefore, it is not possible to determine which course has more ECTS credits based on the given data. To find this information, you would need to refer to the specific course descriptions from the University of Agder's official course catalog or website for the relevant academic year."
+"q017","Compare the workload of IKT112, IKT215, and IKT469.","To compare the workloads of courses IKT112, IKT215, and IKT469, we need to look at their respective estimated learning hours. Here's a breakdown based on the information provided:
+
+1. **IKT112 - Introduction to Programming in Python**:
+   - Estimated workload: 150 learning hours.
+
+2. **IKT215 - Data Structures and Algorithms**:
+   - Estimated workload: 200 learning hours.
+
+3. **IKT469 - Machine Learning**:
+   - Estimated workload: 250 learning hours.
+
+### Comparison:
+
+- **IKT112** has the lowest estimated workload at 150 learning hours, making it potentially less time-intensive compared to the other two courses.
+  
+- **IKT215** requires a moderate amount of effort with an estimated 200 learning hours. This suggests a more substantial commitment than IKT112 but less than IKT469.
+
+- **IKT469** has the highest workload at 250 learning hours, indicating it is likely the most demanding in terms of time and effort among these three courses.
+
+In summary, if you're considering which course might require the least or most time investment, IKT112 would be the lightest, while IKT469 demands the most."
+"q018","Which course has a larger exam component: IKT112 Concepts of Machine Learning or IKT443 WiFi and Internet of Things?","The information provided does not include details about the courses ""IKT112 Concepts of Machine Learning"" or ""IKT443 WiFi and Internet of Things."" Therefore, it is not possible to determine which course has a larger exam component based on the given data. To answer this question accurately, additional information regarding the examination components of these specific courses would be required."
+"q019","Compare IKT452 Computer Vision and IKT460 Reinforcement Learning in terms of course content focus.","The courses IKT452 Computer Vision and IKT460 Reinforcement Learning are both advanced topics within the field of artificial intelligence but have distinct focuses:
+
+### IKT452 Computer Vision:
+- **Focus**: This course centers on enabling computers to interpret and understand visual information from the world, similar to how human vision works.
+- **Content**:
+  - Image processing techniques: Methods for enhancing images or extracting useful information.
+  - Object detection and recognition: Algorithms that identify objects within an image or video.
+  - Feature extraction: Techniques to identify key features in images that can be used for further analysis.
+  - Machine learning applications: Use of supervised, unsupervised, and deep learning methods specifically tailored for visual data.
+  - Computer vision systems: Designing systems that integrate various computer vision techniques for practical applications.
+
+### IKT460 Reinforcement Learning:
+- **Focus**: This course is dedicated to teaching how agents can learn optimal behaviors through interactions with their environment by maximizing cumulative rewards.
+- **Content**:
+  - Markov Decision Processes (MDPs): Mathematical frameworks used to model decision-making situations where outcomes are partly random and partly under the control of a decision-maker.
+  - Value functions: Methods for estimating the expected return of states or actions, crucial for policy improvement.
+  - Policy optimization: Techniques for improving the strategy an agent uses to make decisions.
+  - Exploration vs. exploitation: Strategies for balancing between exploring new actions and exploiting known rewarding actions.
+  - Applications in various domains: Use cases such as robotics, game playing, and autonomous systems.
+
+In summary, while IKT452 Computer Vision focuses on processing and understanding visual data, IKT460 Reinforcement Learning is concerned with decision-making processes where an agent learns from interactions to achieve goals. Both courses involve machine learning but apply it to different types of problems within AI."
+"q020","Which course is most directly focused on deep learning and retrieval-augmented systems?","Based on the provided information, none of the courses explicitly mention a focus on deep learning or retrieval-augmented systems. The courses listed are:
+
+1. **IKT523 Master's Thesis, Cyber Security (Spring 2026)** - Focuses on cybersecurity issues.
+2. **IKT590 Master's Thesis (Spring 2026)** - A general master's thesis in information and communication technology with a broad scope.
+3. **IKT523 Master's Thesis, Cyber Security (Spring 2026)** - Another mention of the same course focusing on cybersecurity.
+4. **IKT590 Master's Thesis (Spring 2026)** - Repeated listing of the general ICT master's thesis.
+
+For courses specifically focused on deep learning and retrieval-augmented systems, you might need to look for other offerings not listed here or check additional resources from the University of Agder's course catalog."
+"q021","Which course would best fit a student who wants to learn reinforcement learning specifically?","Based on the provided information, none of the courses explicitly mention ""reinforcement learning"" as part of their content or learning outcomes. However, if you are looking for a program that might cover topics related to artificial intelligence and potentially include reinforcement learning, the following course could be relevant:
+
+- **IKT590 Master's Thesis (Spring 2026)**: This is a master's thesis in information and communication technology with a focus on research and innovative methods. While it doesn't specifically mention reinforcement learning, students have the flexibility to choose their own topic within ICT. If you are interested in pursuing a project or thesis focused on reinforcement learning, this course would allow you to do so under supervision.
+
+For more specific coursework on reinforcement learning, you might want to explore other programs or courses offered by the university that focus explicitly on artificial intelligence and machine learning topics. It could also be beneficial to contact the faculty directly for guidance on available resources or related courses."
+"q022","Which course is the best match for learning computer vision with hands-on implementation?","Based on the provided information about the courses at UiA (University of Agder) for Spring 2026, none of the listed courses explicitly focus on ""computer vision"" or mention it as part of their curriculum. The courses mentioned are:
+
+1. **IKT590 Master's Thesis**: This is a self-contained work within ICT with elements of research and innovative methods. It allows students to choose their own topic, which could potentially include computer vision if they find an appropriate supervisor and resources.
+
+2. **IKT523 Master's Thesis, Cyber Security**: Focuses on cybersecurity issues and does not mention computer vision as part of its learning outcomes or content.
+
+3. **IKT590 Master's Thesis (Spring 2026)**: Similar to IKT590, this is a general master's thesis course in ICT with no specific focus on computer vision.
+
+4. **Other courses like IKT523 and IKT590**: These are more focused on cybersecurity and general ICT research projects without explicit mention of computer vision.
+
+For learning computer vision specifically with hands-on implementation, you might need to look for specialized courses or programs that explicitly list computer vision as part of their curriculum. Alternatively, if pursuing a master's thesis (like in the IKT590 course), you could potentially choose a topic related to computer vision and work on it under the guidance of a suitable supervisor who has expertise in this area.
+
+If your goal is hands-on implementation, consider looking for courses or programs that include labs, projects, or practical assignments specifically focused on computer vision. You might also explore online platforms or universities known for their strong focus on AI and machine learning, which often cover computer vision extensively."
+"q023","Which courses appear most relevant for a student interested in IoT networking and communication technologies?","For a student interested in IoT (Internet of Things) networking and communication technologies, the following courses from the provided list are particularly relevant:
+
+1. **IKT520 Internet of Things (Spring 2026)**:
+   - This course focuses on IoT, which is directly aligned with interests in IoT networking and communication technologies.
+
+2. **IKT522 Wireless Sensor Networks (WSN) (Spring 2026)**:
+   - Wireless sensor networks are a crucial component of IoT systems, making this course highly relevant for understanding the networking aspects of IoT.
+
+3. **IKT524 Machine-to-Machine Communication (M2M) (Spring 2026)**:
+   - M2M communication is fundamental to IoT as it involves direct communication between devices without human intervention, which is essential for IoT networks.
+
+4. **IKT590 Master's Thesis (Spring 2026)**:
+   - While this course allows students to choose their own topic, a student interested in IoT could focus their thesis on networking and communication technologies within the IoT domain.
+
+5. **IKT523 Internet of Things: Networking and Communication Technologies (Spring 2026)**:
+   - This course specifically addresses networking and communication technologies related to IoT, making it directly relevant for students with this interest.
+
+These courses collectively cover various aspects of IoT, from foundational concepts to specific technologies like wireless sensor networks and machine-to-machine communications."
+"q024","If a student wants a course on intelligent data processing and large-scale data-driven decision making, which course fits best?","Based on the provided information, none of the courses explicitly focus on ""intelligent data processing"" or ""large-scale data-driven decision making."" However, some courses might indirectly cover relevant topics:
+
+1. **IKT590 Master's Thesis (Spring 2026)** - This course involves independent work in a self-contained project within Information and Communication Technology (ICT). If the student chooses a thesis topic related to intelligent data processing or large-scale data-driven decision-making, this could be an appropriate fit.
+
+2. **Artificial Intelligence and The Internet of Things, Master's Programme** - While not explicitly mentioned as a course, this program likely covers topics related to AI, which can include intelligent data processing and decision-making techniques.
+
+For the most relevant experience, the student should consider selecting a thesis topic under IKT590 that aligns with their interests in intelligent data processing or consult with faculty advisors about specific courses within the Artificial Intelligence and The Internet of Things Master's Programme."
+"q025","Can a student take IKT204 Data communication as a free-standing course?","The information provided does not mention anything about the course IKT204 Data Communication being available as a free-standing course. The details given focus on other courses such as IKT590 Master's Thesis, IKT523 Master's Thesis in Cyber Security, and others, but do not include specifics about IKT204 Data Communication or its availability as a standalone option.
+
+To determine if IKT204 Data Communication can be taken as a free-standing course, you would need to consult the specific program details from the University of Agder (UiA) or contact their academic advising office for clarification. They would have the most accurate and up-to-date information regarding course offerings and requirements."
+"q026","What must students complete before they can take the exam in IKT443 WiFi and Internet of Things?","To determine what students must complete before taking an exam in a course like IKT443 ""WiFi and Internet of Things,"" we would typically look for prerequisites or specific requirements outlined in the course description. However, based on the provided text, there is no direct mention of IKT443 or its prerequisites.
+
+In general, courses related to WiFi and IoT might require students to have completed foundational courses in networking, wireless communication, or basic programming. Additionally, they may need to meet certain academic credits or pass prerequisite exams depending on the program's structure.
+
+For precise requirements, you would need to consult the specific course catalog or syllabus for IKT443 at the University of Agder or contact an academic advisor within the relevant department."
+"q027","What prior knowledge is recommended for IKT452 Computer Vision?","The information provided does not include details about the course ""IKT452 Computer Vision."" Therefore, there are no specific recommendations for prior knowledge related to this course mentioned in the text. If you're looking for prerequisites or recommended background for IKT452, it would be best to consult the official course description from the University of Agder's website or contact their academic advising office directly. Generally, courses like Computer Vision might recommend prior knowledge in areas such as programming (e.g., Python), mathematics (especially linear algebra and calculus), and basic understanding of machine learning concepts."
+"q028","What prior knowledge is recommended for IKT519 Blockchain and distributed ledger technology?","For the course ""IKT519 Blockchain and Distributed Ledger Technology,"" it is recommended that students have prior knowledge equivalent to having completed at least 30 ECTS credits in a related field. Additionally, specific recommended prior knowledge includes:
+
+- **IKT101 Introduction to Information Systems**: This foundational course provides an overview of information systems, which can be beneficial for understanding the context and applications of blockchain technology.
+  
+- **IKT102 Programming Fundamentals**: Basic programming skills are essential as they help in understanding how blockchain protocols and smart contracts are developed.
+
+These recommendations ensure that students have a solid grounding in both theoretical concepts and practical skills relevant to blockchain and distributed ledger technologies."
+"q029","What are the minimum requirements to start IKT590 Master's Thesis?","To start working on the IKT590 Master's Thesis at the University of Agder, students must meet the following minimum requirements:
+
+1. **Credit Completion**: Students must have passed examinations with no less than 75 ECTS credits in their respective Master program by the beginning of the semester when they plan to write the master’s thesis.
+
+2. **Topic Approval**: The topic for the master's thesis must be pre-approved by the University of Agder (UiA).
+
+These prerequisites ensure that students have a sufficient academic foundation and a clear, approved research direction before commencing their thesis work."
+"q030","Who is the course leader for IKT433 Distributed and Big Data Systems?","The information provided does not include details about a course titled ""IKT433 Distributed and Big Data Systems"" or its course leader. The data you shared focuses on courses such as IKT590, IKT523, IKT590, IKT590, IKT590, IKT590, IKT590, IKT590, IKT590, IKT590, IKT590, IKT590, IKT590, and IKT590. If you need information about a specific course like ""IKT433 Distributed and Big Data Systems,"" it would be best to consult the official University of Agder website or contact their academic department directly for accurate details."
+"q031","What is the exact duration of IKT433 Distributed and Big Data Systems?","The information provided does not include details about the course ""IKT433 Distributed and Big Data Systems."" Therefore, I am unable to provide the exact duration for this course. If you have access to additional resources or course catalogs from UiA (University of Agder), those might contain the specific details you are looking for."
+"q032","Which textbook is required for IKT469 Deep Neural Networks?","The information provided does not include any details about a course titled ""IKT469 Deep Neural Networks"" or its required textbooks. It appears that the focus of the content you shared is on various other courses offered at the University of Agder, such as IKT590 Master's Thesis and IKT523 Master's Thesis in Cyber Security.
+
+To find out which textbook is required for IKT469 Deep Neural Networks, you would typically need to consult the course syllabus or materials provided by the university. This information might be available on the university’s official website, through a learning management system like Canvas or Moodle, or directly from the instructor of the course. If you have access to these resources, they should provide the necessary details regarding required textbooks and other course materials."
+"q033","On which weekday are lectures for IKT460 held?","The information provided does not include any details about the lecture schedule or weekdays for IKT460. To find out on which weekday lectures for IKT460 are held, you would need to consult the course timetable from the University of Agder's official resources or contact the department directly. This information is typically available through the university's student portal or by reaching out to academic advisors associated with the program."
+"q034","What is the classroom number for IKT122?","The information provided does not include any details about a course titled ""IKT122"" or its classroom number. It appears that the focus is on courses such as IKT590, IKT523, IKT590, and others related to master's thesis work in various fields of Information and Communication Technology (ICT) at the University of Agder for Spring 2026.
+
+If you are looking for specific details about a course like ""IKT122,"" including classroom numbers or other logistical information, it would be best to consult the official university resources such as their website, student portal, or contact the relevant department directly. These sources typically provide up-to-date and detailed information regarding course schedules, locations, and other administrative details."
+"q035","Which spring 2026 courses in the dataset explicitly mention machine learning in either the title, learning outcomes, or contents?","Based on the provided dataset, none of the spring 2026 courses explicitly mention ""machine learning"" in their titles, learning outcomes, or contents. The courses listed focus on topics such as cybersecurity, IoT (Internet of Things), blockchain technology, and master's thesis projects within information and communication technology. If you are specifically interested in machine learning, it might be beneficial to explore other sections of the curriculum or related programs that may not have been included in this dataset."
+"q036","Which courses in the dataset are 30 ECTS thesis courses?","The courses in the dataset that are 30 ECTS thesis courses are:
+
+1. **IKT523 Master's Thesis, Cyber Security (Spring 2026)**
+   - URL: [https://www.uia.no/english/studies/courses/2026/spring/ikt523.html](https://www.uia.no/english/studies/courses/2026/spring/ikt523.html)
+
+2. **IKT590 Master's Thesis (Spring 2026)**
+   - URL: [https://www.uia.no/english/studies/courses/2026/spring/ikt590.html](https://www.uia.no/english/studies/courses/2026/spring/ikt590.html)
+
+Both courses have an ECTS credit value of 30 and are described as master's thesis projects."
+"q037","Which courses are taught in English and are available as free-standing courses, subject to availability?","Based on the provided information, the following courses are taught in English and are available as free-standing courses, subject to availability:
+
+1. **IKT590 Master's Thesis (Spring 2026)**
+   - Teaching Language: English
+   - Available as a free-standing course, subject to availability.
+
+2. **IKT523 Master's Thesis, Cyber Security (Spring 2026)**
+   - Teaching Language: English (as it is also available in Norwegian)
+   - Available as a free-standing course, subject to availability.
+
+These courses are part of the study programs at UiA and can be taken independently if they meet the prerequisites and there are available supervisors."
+"q038","Which courses explicitly require compulsory assignments or exercises to be approved before examination?","The courses that explicitly mention the requirement for compulsory assignments or exercises to be approved before examination are:
+
+1. **IKT590 Master's Thesis (Spring 2026)**:
+   - This course requires 10 compulsory guidance meetings and approval of a press-release as part of its examination requirements.
+
+2. **IKT523 Master's Thesis, Cyber Security (Spring 2026)**:
+   - While it does not explicitly mention ""compulsory assignments,"" the requirement for project reports and an oral exam implies that certain deliverables must be completed and approved before the final evaluation.
+
+These courses have specific components or milestones that need to be met as part of their examination process."
+"q039","Which courses appear most relevant for a student interested in cybersecurity?","For a student interested in cybersecurity, the following courses from the provided information are particularly relevant:
+
+1. **IKT523 Master's Thesis, Cyber Security (Spring 2026)**:
+   - This course focuses on applying knowledge to new areas within ICT/Information Systems security and analyzing cybersecurity issues from both research and operational perspectives.
+   - It involves conducting independent research projects with supervision, emphasizing academic and ethical standards.
+
+2. **IKT590 Master's Thesis (Spring 2026)**:
+   - Although this is a general master's thesis course in information and communication technology, it allows students to choose topics within ICT that can include cybersecurity.
+   - The course emphasizes applying knowledge to new areas, analyzing problems from both research and industrial perspectives, and contributing innovative ideas.
+
+3. **IKT523 Master’s Programme Cyber Security**:
+   - This study program is directly connected to the IKT523 Master's Thesis in Cybersecurity, indicating a comprehensive focus on cybersecurity topics throughout the curriculum.
+
+These courses provide opportunities for deep engagement with cybersecurity concepts, research methodologies, and practical applications within the field."
+"q040","Which course best matches a student wanting to build multimodal and retrieval-augmented systems using embeddings and external knowledge?","Based on the provided course descriptions, none of them explicitly focus on building multimodal and retrieval-augmented systems using embeddings and external knowledge. The courses listed are primarily centered around cybersecurity, IoT (Internet of Things), and general master's thesis work in information and communication technology.
+
+For a student interested specifically in multimodal and retrieval-augmented systems with an emphasis on embeddings and external knowledge, they might need to look for courses that focus more directly on artificial intelligence, machine learning, or data science. These areas often cover topics like embeddings (e.g., word embeddings, image embeddings) and techniques for integrating external knowledge into AI models.
+
+If the student is enrolled at UiA and these specific interests are not covered in existing courses, they might consider:
+
+1. **Exploring Electives**: Look for electives or special topics within related programs that focus on AI or data science.
+2. **Independent Study**: Propose an independent study project under a faculty member whose research aligns with their interests.
+3. **Interdisciplinary Approach**: Combine elements from different courses, such as those in the Artificial Intelligence and IoT programs, to build a custom learning path.
+
+For more precise guidance, consulting academic advisors or faculty members specializing in AI at UiA would be beneficial."
