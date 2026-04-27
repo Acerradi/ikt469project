@@ -174,6 +174,8 @@ Scoring:
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
 def safe_parse_json(text: str) -> dict | None:
+    # Strip markdown code fences (```json ... ``` or ``` ... ```)
+    text = re.sub(r"```(?:json)?\s*", "", text).strip()
     try:
         return json.loads(text)
     except Exception:
@@ -319,7 +321,15 @@ def load_expected_answers(path: str) -> dict:
             f"{path} not found. Run generate_expected_answers.py first."
         )
     df = pd.read_csv(path)
-    return dict(zip(df["question_id"].astype(str), df["expected_answer"].astype(str)))
+    if "question_id" in df.columns:
+        return dict(zip(df["question_id"].astype(str), df["expected_answer"].astype(str)))
+    # Fall back to matching by question text
+    q_to_id = {item["question"]: item["id"] for item in QUESTION_SET}
+    return {
+        q_to_id[row["question"]]: row["expected_answer"]
+        for _, row in df.iterrows()
+        if row["question"] in q_to_id
+    }
 
 
 # ─── Evaluation loop ──────────────────────────────────────────────────────────

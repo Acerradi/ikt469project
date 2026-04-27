@@ -1,13 +1,41 @@
-Instructions:
-1. Start docker container using ```docker-compose up -d```
-2. Download models (one time):
+# Setup
+
+## 1. Start Docker
+```bash
+docker-compose up -d
 ```
+
+## 2. Pull models (one time)
+```bash
+docker exec -it ollama ollama pull phi4:14b
+docker exec -it ollama ollama pull qwen2.5:7b
 docker exec -it ollama ollama pull llama3.2:3b
 docker exec -it ollama ollama pull qwen2.5:0.5b
 ```
-3. Run `collect_store_data.ipynb` to scrape, chunk, embed, and index course data (one time)
-4. Run `evaluate.py` for a single evaluation with the default configuration
-5. Run `experiment_runner.py` to systematically evaluate multiple configurations
+
+## 3. Install Python dependencies (one time)
+```bash
+pip install -r requirements.txt
+```
+
+## 4. Collect and index course data (one time)
+
+Run `collect_store_data.ipynb` to scrape, chunk, embed, and index UiA IKT course data into ChromaDB.
+
+## 5. Run evaluation
+```bash
+python evaluate.py
+```
+
+Results are appended to `experiment_results.csv` and `experiment_results_summary.csv`.
+
+## 6. Run systematic experiments
+```bash
+python experiment_runner.py                        # full run
+python experiment_runner.py --output my.csv        # custom output path
+python experiment_runner.py --skip-index-rebuild   # use existing index
+python experiment_runner.py --resume               # resume interrupted run
+```
 
 ## experiment_runner.py
 
@@ -37,16 +65,10 @@ The script automatically skips any Ollama model that is not pulled.
   - `total_cpu_time_s`, `mean_cpu_time_per_question_s`
   - `total_energy_j`, `mean_energy_per_question_j` (RAPL; `null` if unavailable)
 
-**Enabling RAPL energy measurement** (one-time, requires sudo):
+**Enabling RAPL energy measurement** (one-time, Linux only, requires sudo):
 ```bash
 sudo chmod o+r /sys/class/powercap/intel-rapl/intel-rapl:0/energy_uj
 sudo chmod o+r /sys/class/powercap/intel-rapl/intel-rapl:0/max_energy_range_uj
-```
-
-```
-python experiment_runner.py                        # full run
-python experiment_runner.py --output my.csv        # custom output path
-python experiment_runner.py --skip-index-rebuild   # use existing chroma_langchain_db
 ```
 
 If `uia_ikt_courses.csv` is not present, only experiments using the existing baseline index (`all-MiniLM-L6-v2`, chunk `500/100`) will run; the other embedding/chunk configurations are skipped.
