@@ -1,83 +1,179 @@
-# Setup
+# UiA IKT Course Chatbot — RAG Evaluation Pipeline
 
-## 1. Start Docker
+A retrieval-augmented generation (RAG) chatbot for the UiA IKT course catalogue,
+with a systematic experiment runner that sweeps 7 independent parameters to
+identify the best pipeline configuration.
+
+---
+
+## Setup
+
+### 1. Start Ollama (Docker)
 ```bash
 docker-compose up -d
 ```
 
-## 2. Pull models (one time)
+### 2. Pull models (one time)
+
+**Generator models** (all optional — the runner skips models that are not pulled):
 ```bash
-docker exec -it ollama ollama pull phi4:14b
-docker exec -it ollama ollama pull qwen2.5:7b
-docker exec -it ollama ollama pull llama3.2:3b
-docker exec -it ollama ollama pull qwen2.5:0.5b
+docker exec -it ollama ollama pull phi4:14b       # Microsoft — best quality, ~8 GB VRAM
+docker exec -it ollama ollama pull qwen2.5:7b     # Alibaba — reliable structured output
+docker exec -it ollama ollama pull mistral:7b     # Mistral AI — strong European baseline
+docker exec -it ollama ollama pull gemma2:9b      # Google — alternative RLHF recipe
+docker exec -it ollama ollama pull llama3.2:3b    # Meta — lightweight efficiency baseline
+docker exec -it ollama ollama pull qwen2.5:0.5b   # Alibaba — ultra-small lower bound
 ```
 
-## 3. Install Python dependencies (one time)
+**Judge models** (at least one required):
 ```bash
+docker exec -it ollama ollama pull qwen2.5:7b     # primary judge (if not already pulled)
+docker exec -it ollama ollama pull llama3.2:3b    # fallback judge (if not already pulled)
+```
+
+### 3. Install Python dependencies (one time)
+```bash
+conda activate ikt469project
 pip install -r requirements.txt
 ```
 
-## 4. Collect and index course data (one time)
+### 4. Collect and index course data (one time)
 
-Run `collect_store_data.ipynb` to scrape, chunk, embed, and index UiA IKT course data into ChromaDB.
+Run `collect_store_data.ipynb` to scrape, chunk, embed, and store UiA IKT course
+data into ChromaDB. This produces `uia_ikt_courses.csv` and `chroma_langchain_db/`.
 
-## 5. Run evaluation
-```bash
-python evaluate.py
-```
+Without the CSV, only the baseline dense index (MiniLM-L6, chunk 500/100) is usable.
 
-Results are appended to `experiment_results.csv` and `experiment_results_summary.csv`.
-
-## 6. Run systematic experiments
-```bash
-python experiment_runner.py                        # full run
-python experiment_runner.py --output my.csv        # custom output path
-python experiment_runner.py --skip-index-rebuild   # use existing index
-python experiment_runner.py --resume               # resume interrupted run
-```
-
-## experiment_runner.py
-
-Runs a grid of RAG pipeline experiments and saves results to CSV. Each experiment varies one or more of:
-
-| Variable | Options |
-|---|---|
-| Embedding model | `all-MiniLM-L6-v2`, `all-mpnet-base-v2` |
-| Chunk size / overlap | `500/100` (baseline), `250/50` (smaller) |
-| k (retrieved docs) | `3`, `5`, `10` |
-| Generator model | `llama3.2:3b`, `qwen2.5:0.5b` |
-
-The script automatically skips any Ollama model that is not pulled.
-
-**Output files** (appended after each experiment, so partial results are preserved on interruption):
-
-- `experiment_results.csv` — one row per question per experiment, including:
-  - Retrieved context, generated answer, grounding and relevance scores/verdicts
-  - `generation_latency_s`, `judge_latency_s`, `total_latency_s` — time breakdown per question
-  - `cpu_time_s` — process CPU seconds consumed for that question (always available)
-  - `energy_j` — CPU package energy in joules via Intel RAPL (requires root; `null` otherwise)
-
-- `experiment_results_summary.csv` — one row per experiment, with the key metrics:
-  - `grounding_passes` / `grounding_fails`, `relevance_passes` / `relevance_fails`
-  - `experiment_duration_s` — total wall-clock time for the experiment
-  - `mean_latency_per_question_s` — average total latency per question
-  - `total_cpu_time_s`, `mean_cpu_time_per_question_s`
-  - `total_energy_j`, `mean_energy_per_question_j` (RAPL; `null` if unavailable)
-
-**Enabling RAPL energy measurement** (one-time, Linux only, requires sudo):
+### 5. Enable RAPL energy measurement (optional, Linux + Intel CPU only)
 ```bash
 sudo chmod o+r /sys/class/powercap/intel-rapl/intel-rapl:0/energy_uj
 sudo chmod o+r /sys/class/powercap/intel-rapl/intel-rapl:0/max_energy_range_uj
 ```
+Without this, `energy_j` columns are recorded as `null`.
 
-If `uia_ikt_courses.csv` is not present, only experiments using the existing baseline index (`all-MiniLM-L6-v2`, chunk `500/100`) will run; the other embedding/chunk configurations are skipped.
+---
 
-## To do:
-- ~~Implement pipeline that uses transformers and hugging face (Pure python, no Ollama), or dockerized Ollama~~
-- ~~Change scraping to collect more and better data.~~
-- ~~Implement better chunking, embedding and retrieval.~~
-- ~~Implement evaluation pipeline of RAG chatbot using LLM as judge?~~
-- ~~Systematic experiments across embedding models, chunk sizes, k-values, and generator models~~
-- Find a more suitable LLM model.
-- Implement a terminal chat with RAG chatbot.
+## Running experiments
+
+### Quick single-run evaluation (`evaluate.py`)
+
+Runs one fixed configuration (phi4:14b generator, qwen2.5:7b judge, k=10, dense retrieval)
+against all 40 questions and appends results to the summary CSV.
+
+```bash
+conda activate ikt469project
+python evaluate.py
+```
+
+Requires `expected_answers.csv` (generated by `generate_expected_answers.py`).
+
+---
+
+### Systematic experiment sweep (`experiment_runner.py`)
+
+Sweeps a 7-dimensional parameter grid, writing results question-by-question.
+Interrupted runs resume automatically from the exact question they stopped on.
+
+```bash
+conda activate ikt469project
+python experiment_runner.py                          # full sweep, auto-resume
+python experiment_runner.py --output my.csv          # custom output path
+python experiment_runner.py --no-resume              # ignore existing results, start fresh
+python experiment_runner.py --skip-index-rebuild     # reuse existing chroma_langchain_db
+```
+
+The run can be stopped with **Ctrl+C at any time** and restarted with the same command —
+results already written are never repeated.
+
+---
+
+## Experiment grid
+
+Seven independent dimensions are swept in a full factorial design:
+
+| Dimension | Values | Purpose |
+|---|---|---|
+| **Embedding model** | `all-MiniLM-L6-v2`, `all-mpnet-base-v2`, `bge-small-en-v1.5`, `bge-large-en-v1.5` | Retrieval quality vs. speed |
+| **Chunk size / overlap** | `500/100` (baseline), `250/50` (finer) | Precision vs. context richness |
+| **k (retrieved docs)** | `3`, `5`, `10` | Coverage vs. noise |
+| **Retrieval strategy** | `dense`, `bm25`, `hybrid` | Semantic vs. keyword vs. combined |
+| **Reranker** | `none`, `cross-encoder` | Post-retrieval precision improvement |
+| **Temperature** | `0.0`, `0.3` | Determinism vs. creativity |
+| **Generator model** | `phi4:14b`, `qwen2.5:7b`, `mistral:7b`, `gemma2:9b`, `llama3.2:3b`, `qwen2.5:0.5b` | Quality vs. efficiency tradeoff |
+
+Judge models (`qwen2.5:7b`, `llama3.2:3b`) provide inter-rater reliability.
+
+With all 6 generator models and 2 judge models pulled:
+**5 embed × 3 k × 3 retrieval × 2 reranker × 2 temperature × 6 gen × 2 judge = 2,160 experiments × 40 questions**
+
+The runner skips any model not pulled in Ollama and downgrades BM25/hybrid/cross-encoder
+gracefully if their Python dependencies are unavailable.
+
+### Retrieval strategies explained
+
+| Strategy | Description |
+|---|---|
+| `dense` | Cosine similarity search in the embedding vector space. Strong for semantic queries. |
+| `bm25` | Keyword frequency (BM25) sparse retrieval. Strong for exact terms like course codes. |
+| `hybrid` | Combines dense + BM25 scores via Reciprocal Rank Fusion (RRF). Usually best overall. |
+
+### Reranker
+
+`cross-encoder` uses `cross-encoder/ms-marco-MiniLM-L-6-v2` (~67 MB, CPU-only) to
+re-score every (query, doc) pair and keep the most relevant top-k before generation.
+Downloads automatically on first use and is cached locally.
+
+---
+
+## Output files
+
+Both files are appended incrementally — safe to inspect mid-run.
+
+### `experiment_results.csv` — one row per question per experiment
+
+Key columns:
+
+| Column | Description |
+|---|---|
+| `exp_id` | Experiment identifier (`exp0000`, `exp0001`, …) |
+| `embedding_model` | HuggingFace embedding model name |
+| `chunk_size` / `chunk_overlap` | Text splitter parameters |
+| `k` | Number of docs given to the retriever |
+| `retrieval_strategy` | `dense` / `bm25` / `hybrid` |
+| `reranker` | `none` / `cross-encoder` |
+| `temperature` | Generator temperature |
+| `generator_model` | Ollama generator model tag |
+| `judge_model` | Ollama judge model tag |
+| `retrieved_docs` | Actual number of docs passed to generator (≥ k due to course-code injection) |
+| `answer` | Generated answer |
+| `grounding_score` / `grounding_verdict` | Is every claim supported by the context? (0–1, pass/fail) |
+| `relevance_score` / `relevance_verdict` | Does the answer match the gold reference? (0–1, pass/fail) |
+| `generation_latency_s` | Time to generate the answer |
+| `judge_latency_s` | Time for both judge calls |
+| `cpu_time_s` | Process CPU seconds for this question |
+| `energy_j` | CPU package energy via Intel RAPL (null if unavailable) |
+
+### `experiment_results_summary.csv` — one row per experiment
+
+Aggregates the per-question rows into experiment-level metrics:
+`grounding_passes`, `grounding_fails`, `relevance_passes`, `relevance_fails`,
+`mean_grounding_score`, `mean_relevance_score`, `experiment_duration_s`,
+`mean_latency_per_question_s`, `total_energy_j`, etc.
+
+---
+
+## Project files
+
+| File | Description |
+|---|---|
+| `collect_store_data.ipynb` | Scrape UiA course pages, chunk, embed, and store in ChromaDB |
+| `evaluate.py` | Single-config evaluation with phi4:14b + qwen2.5:7b |
+| `experiment_runner.py` | Full 7-dimensional experiment grid with resume support |
+| `example.ipynb` | Interactive RAG demo |
+| `chroma_langchain_db/` | Baseline ChromaDB index (MiniLM-L6, chunk 500/100) |
+| `uia_ikt_courses.csv` | Scraped course data |
+| `expected_answers.csv` | Gold reference answers for relevance evaluation |
+| `experiment_results.csv` | Per-question experiment results |
+| `experiment_results_summary.csv` | Per-experiment summary metrics |
+| `docker-compose.yml` | Ollama GPU container |
+| `requirements.txt` | Python dependencies |
