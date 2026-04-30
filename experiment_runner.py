@@ -103,14 +103,12 @@ SECTION_FIELDS = [
 
 EMBED_CHUNK_CONFIGS = [
     ("minilm-500",    "sentence-transformers/all-MiniLM-L6-v2",  500, 100, True),
-    ("minilm-250",    "sentence-transformers/all-MiniLM-L6-v2",  250,  50, False),
     ("mpnet-500",     "sentence-transformers/all-mpnet-base-v2",  500, 100, False),
-    ("bge-small-500", "BAAI/bge-small-en-v1.5",                   500, 100, False),
     ("bge-large-500", "BAAI/bge-large-en-v1.5",                   500, 100, False),
 ]
 
 # Dimension 2 — Number of retrieved documents
-K_VALUES = [3, 5, 10]
+K_VALUES = [3, 5]
 
 # Dimension 3 — Retrieval strategy
 # "dense"  : dense vector similarity (current baseline)
@@ -123,8 +121,8 @@ RETRIEVAL_STRATEGIES = ["dense", "bm25", "hybrid"]
 # "cross-encoder"  : rerank with cross-encoder, keep top-k (most precise)
 RERANKER_CONFIGS = ["none", "cross-encoder"]
 
-# Dimension 5 — Generator temperature
-TEMPERATURE_VALUES = [0.0, 0.3]
+# Dimension 5 — Generator temperature (fixed at 0.0 for deterministic factual QA)
+TEMPERATURE_VALUES = [0.0]
 
 # Dimension 6 — Generator model (filtered to models pulled in Ollama)
 # Covers: Microsoft (phi4), Alibaba (qwen2.5), Meta (llama3.x),
@@ -138,10 +136,9 @@ CANDIDATE_GENERATOR_MODELS = [
     "qwen2.5:0.5b",  # Alibaba — ultra-small efficiency lower bound
 ]
 
-# Dimension 7 — Judge model
+# Dimension 7 — Judge model (fixed to primary judge for consistent scoring)
 CANDIDATE_JUDGE_MODELS = [
     "qwen2.5:7b",    # primary judge (matches evaluate.py)
-    "llama3.2:3b",   # fallback judge
 ]
 
 # Per-model token budget — synthesis questions need more room
