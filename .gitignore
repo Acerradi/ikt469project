@@ -1,6 +1,6 @@
 chroma_langchain_db/
-uia_ikt_courses.csv
-rag_evaluation.csv
+#uia_ikt_courses.csv
+#rag_evaluation.csv
 .DS_Store
 .vscode/
 .claude/
